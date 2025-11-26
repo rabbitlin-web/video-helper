@@ -3,303 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小白视频助手 | VideoHelper - By rabbitlin</title>
-    <meta name="description" content="专为新手设计的视频工具箱。免费转换MP4，压缩视频发微信。Created by rabbitlin.">
+    <title>VideoHelper | 小白视频助手</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script src="coi-serviceworker.js"></script>
-
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
-
     <script src="https://unpkg.com/heic2any@0.0.3/dist/heic2any.min.js"></script>
     
     <style>
-        body { background-color: #f2f2f2; color: #111; }
+        /* 引入更好看的英文字体 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         
-        /* 按钮通用风格 */
-        .btn-tool { transition: all 0.2s; border: 2px solid #000; background: #fff; }
-        .btn-tool:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #000; }
-        .btn-tool.active { background: #000; color: #fff; box-shadow: 4px 4px 0px #666; transform: translate(-2px, -2px); }
-        
-        /* Github 按钮风格 */
-        .btn-github { background: #000; color: #fff; border: 2px solid #000; }
-        .btn-github:hover { background: #333; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px rgba(0,0,0,0.2); }
+        body { 
+            background-color: #F5F5F4; /* Stone-100: 温暖的米灰色背景 */
+            color: #44403C; /* Stone-700: 深灰褐文字，不刺眼 */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
 
-        .panel { border: 2px solid #000; background: #fff; box-shadow: 8px 8px 0px rgba(0,0,0,0.1); }
-        .input-box { border: 2px solid #ccc; border-radius: 4px; padding: 8px; width: 100%; }
-        .input-box:focus { border-color: #000; outline: none; }
+        /* 莫兰迪色系组件类 */
+        .morandi-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 极淡的阴影 */
+            border: 1px solid #E7E5E4; /* Stone-200 */
+        }
+
+        /* 左侧菜单按钮 */
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            color: #78716C; /* Stone-500 */
+            font-weight: 600;
+            background: transparent;
+        }
         
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
+        .nav-btn:hover {
+            background-color: #E7E5E4; /* Stone-200 */
+            color: #44403C;
+        }
+
+        /* 选中状态：雾霾蓝 */
+        .nav-btn.active {
+            background-color: #475569; /* Slate-600 */
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
+        }
+
+        /* 主按钮：鼠尾草绿 */
+        .btn-primary {
+            background-color: #709085; /* Morandi Green */
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #5a756b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(112, 144, 133, 0.3);
+        }
+
+        /* 虚线上传框 */
+        .upload-box {
+            border: 2px dashed #D6D3D1; /* Stone-300 */
+            border-radius: 16px;
+            transition: all 0.3s;
+            background: #FAFAF9;
+        }
+        .upload-box:hover {
+            border-color: #709085;
+            background: #EFF6F3;
+        }
+
+        .loader { border: 3px solid #E7E5E4; border-top: 3px solid #709085; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-    <header class="bg-white border-b-2 border-black p-6">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-black tracking-tighter uppercase">VIDEO<span class="text-gray-500">HELPER</span></h1>
-                <p class="text-sm font-bold text-gray-500 mt-1">不懂电脑也能用的视频工具箱 <span class="text-xs bg-black text-white px-1 rounded">V2.0</span></p>
+    <header class="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-[#475569] rounded-lg flex items-center justify-center text-white font-bold text-lg">V</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-stone-800">VIDEO<span class="text-[#709085]">HELPER</span></h1>
+                </div>
             </div>
-            <div class="text-xs font-mono bg-gray-100 px-3 py-1 border border-gray-300 rounded">
-                隐私保护：本地处理，不上传服务器 / Private & Local
+            
+            <div class="flex items-center gap-4">
+                <button onclick="toggleLanguage()" class="text-xs font-bold px-3 py-1.5 rounded-full border border-stone-300 hover:bg-stone-100 transition text-stone-600">
+                    🌐 <span id="lang-display">EN</span>
+                </button>
+                <div class="hidden md:block text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-full">
+                    <span data-i18n="privacy_tag">🔒 本地处理，不上传 / Private & Local</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow max-w-6xl mx-auto w-full p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-        <aside class="md:col-span-1 space-y-3">
-            <h3 class="font-bold text-gray-400 text-sm uppercase mb-4">功能菜单 / TOOLS</h3>
-            <button onclick="switchTab('mp4')" id="btn-mp4" class="btn-tool active w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>🔄 视频转 MP4</span> <span class="text-xs opacity-50">修复打不开</span></button>
-            <button onclick="switchTab('compress')" id="btn-compress" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>📉 微信视频压缩</span> <span class="text-xs opacity-50">强力瘦身</span></button>
-            <button onclick="switchTab('trim')" id="btn-trim" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>✂️ 视频掐头去尾</span> <span class="text-xs opacity-50">精确剪辑</span></button>
-            <button onclick="switchTab('audio')" id="btn-audio" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>🎵 提取音频</span> <span class="text-xs opacity-50">转MP3</span></button>
-            <button onclick="switchTab('heic')" id="btn-heic" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>🖼️ 苹果图片转换</span> <span class="text-xs opacity-50">HEIC转JPG</span></button>
+    <main class="flex-grow max-w-6xl mx-auto w-full p-6 grid grid-cols-1 md:grid-cols-12 gap-8 mt-4">
+        
+        <aside class="md:col-span-3">
+            <h3 class="font-bold text-stone-400 text-xs uppercase mb-4 tracking-wider px-2" data-i18n="menu_title">TOOLS / 功能菜单</h3>
+            <nav class="space-y-1">
+                <button onclick="switchTab('mp4')" id="btn-mp4" class="nav-btn active">
+                    <span class="mr-3 text-lg">🔄</span> 
+                    <div class="text-left leading-tight">
+                        <div class="text-sm" data-i18n="btn_mp4">视频转 MP4</div>
+                        <div class="text-[10px] opacity-60 font-normal" data-i18n="desc_mp4">Fix Format</div>
+                    </div>
+                </button>
+                <button onclick="switchTab('compress')" id="btn-compress" class="nav-btn">
+                    <span class="mr-3 text-lg">📉</span> 
+                    <div class="text-left leading-tight">
+                        <div class="text-sm" data-i18n="btn_compress">微信视频压缩</div>
+                        <div class="text-[10px] opacity-60 font-normal" data-i18n="desc_compress">Reduce Size</div>
+                    </div>
+                </button>
+                <button onclick="switchTab('trim')" id="btn-trim" class="nav-btn">
+                    <span class="mr-3 text-lg">✂️</span> 
+                    <div class="text-left leading-tight">
+                        <div class="text-sm" data-i18n="btn_trim">视频掐头去尾</div>
+                        <div class="text-[10px] opacity-60 font-normal" data-i18n="desc_trim">Simple Trim</div>
+                    </div>
+                </button>
+                <button onclick="switchTab('audio')" id="btn-audio" class="nav-btn">
+                    <span class="mr-3 text-lg">🎵</span> 
+                    <div class="text-left leading-tight">
+                        <div class="text-sm" data-i18n="btn_audio">提取音频</div>
+                        <div class="text-[10px] opacity-60 font-normal" data-i18n="desc_audio">Get MP3</div>
+                    </div>
+                </button>
+                <button onclick="switchTab('heic')" id="btn-heic" class="nav-btn">
+                    <span class="mr-3 text-lg">🖼️</span> 
+                    <div class="text-left leading-tight">
+                        <div class="text-sm" data-i18n="btn_heic">苹果图片转换</div>
+                        <div class="text-[10px] opacity-60 font-normal" data-i18n="desc_heic">HEIC to JPG</div>
+                    </div>
+                </button>
+            </nav>
         </aside>
 
-        <section class="md:col-span-3">
-            <div id="instruction-panel" class="mb-6 p-4 bg-gray-100 border-l-4 border-black text-sm text-gray-700"></div>
+        <section class="md:col-span-9">
+            
+            <div class="mb-6 p-6 rounded-2xl bg-[#EBECE9] text-stone-700 text-sm border border-stone-200">
+                <div id="instruction-text">Loading...</div>
+            </div>
 
-            <div class="panel p-8 min-h-[400px] flex flex-col justify-center items-center text-center relative">
-                <div id="upload-zone" class="w-full">
-                    <label class="block w-full border-2 border-dashed border-gray-300 hover:border-black hover:bg-gray-50 p-12 rounded-lg cursor-pointer transition">
-                        <div class="text-4xl mb-2">📂</div>
-                        <span class="font-bold text-lg">点击选择文件</span>
-                        <p class="text-gray-400 text-sm mt-2" id="file-hint">支持 MOV, AVI, MKV 等</p>
+            <div class="morandi-card p-10 min-h-[450px] flex flex-col justify-center items-center text-center relative overflow-hidden">
+                
+                <div id="upload-zone" class="w-full max-w-xl transition-all duration-500">
+                    <label class="upload-box block p-16 cursor-pointer group">
+                        <div class="text-5xl mb-4 opacity-50 group-hover:scale-110 transition-transform duration-300">📂</div>
+                        <h3 class="font-bold text-lg text-stone-700 mb-1" data-i18n="upload_title">点击选择文件</h3>
+                        <p class="text-stone-400 text-sm" id="file-hint">MOV, MKV, MP4, AVI...</p>
                         <input type="file" id="file-input" class="hidden">
                     </label>
                 </div>
 
-                <div id="options-zone" class="hidden w-full max-w-md mt-6 bg-gray-50 p-4 border border-gray-200 rounded text-left">
-                    <div id="opt-trim" class="hidden grid grid-cols-2 gap-4">
+                <div id="options-zone" class="hidden w-full max-w-md mt-8 bg-stone-50 p-6 rounded-xl border border-stone-200 text-left animate-fade-in">
+                    <div id="opt-trim" class="hidden grid grid-cols-2 gap-5">
                         <div>
-                            <label class="text-xs font-bold">开始时间 (秒)</label>
-                            <input type="number" id="trim-start" value="0" class="input-box" placeholder="例如: 5">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold">持续时间 (秒)</label>
-                            <input type="number" id="trim-duration" class="input-box" placeholder="例如: 10">
-                        </div>
-                    </div>
-                </div>
-
-                <div id="process-zone" class="hidden w-full">
-                    <div class="loader mb-4"></div>
-                    <h3 class="text-xl font-bold" id="status-text">准备就绪...</h3>
-                    <p class="text-gray-500 text-sm mt-2">浏览器正在全力计算中，电脑发热是正常的...</p>
-                </div>
-
-                <div id="result-zone" class="hidden w-full">
-                    <div class="text-5xl mb-4">✅</div>
-                    <h3 class="text-2xl font-bold mb-2">搞定！</h3>
-                    <div class="flex flex-col gap-3 justify-center mt-6">
-                        <a id="download-link" href="#" class="bg-black text-white px-8 py-3 font-bold hover:bg-gray-800 transition rounded shadow-lg">⬇️ 下载文件</a>
-                        <button onclick="location.reload()" class="text-gray-500 underline text-sm">刷新页面处理下一个</button>
-                    </div>
-                </div>
-
-                <div id="error-msg" class="hidden mt-4 bg-red-50 text-red-600 p-3 text-sm font-bold border border-red-200"></div>
-                
-                <button id="start-btn" class="hidden mt-6 bg-black text-white px-10 py-3 font-bold hover:bg-gray-800 w-full max-w-xs mx-auto">开始处理</button>
-            </div>
-        </section>
-    </main>
-
-    <footer class="bg-white border-t-2 border-black mt-12">
-        <div class="max-w-6xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-            
-            <div class="text-center md:text-left space-y-4">
-                <div>
-                    <h3 class="text-xl font-black uppercase tracking-wider">About Creator</h3>
-                    <p class="text-lg font-bold mt-2">创作者：<span class="bg-black text-white px-1">rabbitlin</span></p>
-                    <p class="text-gray-500 font-mono text-sm">微信号 (WeChat): Aa272123071</p>
-                </div>
-                
-                <a href="https://github.com/rabbitlin-web/video-helper" target="_blank" class="btn-github inline-flex items-center px-6 py-3 font-bold rounded-lg transition mt-4">
-                    <span class="mr-2 text-xl">⭐</span> 
-                    <span>Star on GitHub / 去点赞</span>
-                </a>
-                <p class="text-xs text-gray-400 mt-2">源代码开源，欢迎 Fork 和 学习。</p>
-            </div>
-
-            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
-                <p class="font-bold text-gray-800 mb-2">
-                    ☕️ 喜欢这个工具吗？<br>
-                    <span class="text-sm font-normal text-gray-500">If you like it, buy me a coffee!</span>
-                </p>
-                <p class="text-sm text-pink-500 font-bold mb-4">
-                    "如果觉得好用，请我喝杯咖啡提提神吧！"
-                </p>
-                
-                <img src="pay.jpg" alt="WeChat Pay" class="w-40 h-40 object-cover mx-auto rounded-lg border border-gray-200 shadow-sm">
-                
-                <p class="text-xs text-gray-400 mt-2">WeChat Pay / 微信支付</p>
-            </div>
-
-        </div>
-    </footer>
-
-    <script>
-        const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: true });
-        
-        let currentMode = 'mp4';
-        let selectedFile = null;
-
-        const els = {
-            uploadZone: document.getElementById('upload-zone'),
-            processZone: document.getElementById('process-zone'),
-            resultZone: document.getElementById('result-zone'),
-            optionsZone: document.getElementById('options-zone'),
-            optTrim: document.getElementById('opt-trim'),
-            fileInput: document.getElementById('file-input'),
-            startBtn: document.getElementById('start-btn'),
-            statusText: document.getElementById('status-text'),
-            downloadLink: document.getElementById('download-link'),
-            errorMsg: document.getElementById('error-msg'),
-            instruction: document.getElementById('instruction-panel'),
-            fileHint: document.getElementById('file-hint')
-        };
-
-        const instructions = {
-            mp4: `<strong>📢 修复/转换:</strong> 解决视频无法播放、黑屏、格式不支持的问题。输出标准 MP4。`,
-            compress: `<strong>📢 强力压缩:</strong> 专门解决微信/邮件发不出的问题。<br>我们会大幅压缩画质以换取最小体积（CRF 30）。`,
-            trim: `<strong>📢 精确剪辑:</strong> 输入开始时间和持续时长。<br>我们会重新编码以确保剪辑点精确（可能会慢一点）。`,
-            audio: `<strong>📢 提取音频:</strong> 仅提取声音，生成 MP3 文件。`,
-            heic: `<strong>📢 图片转换:</strong> iPhone 照片转 JPG。`
-        };
-
-        updateInstructions();
-
-        window.switchTab = (mode) => {
-            currentMode = mode;
-            document.querySelectorAll('.btn-tool').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${mode}`).classList.add('active');
-            resetUI();
-            updateInstructions();
-            if (mode === 'heic') {
-                els.fileInput.accept = "image/heic, image/heif";
-                els.fileHint.innerText = "请选择 .heic 图片";
-            } else {
-                els.fileInput.accept = "video/*";
-                els.fileHint.innerText = "支持各种视频格式";
-            }
-        };
-
-        function updateInstructions() {
-            els.instruction.innerHTML = instructions[currentMode];
-            if(currentMode === 'trim') {
-                els.optionsZone.classList.remove('hidden');
-                els.optTrim.classList.remove('hidden');
-            } else {
-                els.optionsZone.classList.add('hidden');
-                els.optTrim.classList.add('hidden');
-            }
-        }
-
-        function resetUI() {
-            selectedFile = null;
-            els.fileInput.value = "";
-            els.uploadZone.classList.remove('hidden');
-            els.processZone.classList.add('hidden');
-            els.resultZone.classList.add('hidden');
-            els.startBtn.classList.add('hidden');
-            els.errorMsg.classList.add('hidden');
-        }
-
-        els.fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            selectedFile = file;
-            els.fileHint.innerHTML = `已选择：<strong class="text-black">${file.name}</strong> (${(file.size/1024/1024).toFixed(1)} MB)`;
-            els.startBtn.classList.remove('hidden');
-        });
-
-        els.startBtn.addEventListener('click', async () => {
-            if (!selectedFile) return;
-            els.uploadZone.classList.add('hidden');
-            els.optionsZone.classList.add('hidden');
-            els.startBtn.classList.add('hidden');
-            els.processZone.classList.remove('hidden');
-            els.errorMsg.classList.add('hidden');
-
-            try {
-                if (currentMode === 'heic') {
-                    await processHEIC(selectedFile);
-                } else {
-                    await processVideo(selectedFile);
-                }
-            } catch (err) {
-                console.error(err);
-                els.processZone.classList.add('hidden');
-                els.uploadZone.classList.remove('hidden');
-                els.errorMsg.innerHTML = "出错了：" + err.message + "<br>请检查是否已配置HTTPS或SharedArrayBuffer。";
-                els.errorMsg.classList.remove('hidden');
-            }
-        });
-
-        async function processHEIC(file) {
-            els.statusText.innerText = "正在转换图片...";
-            const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
-            const url = URL.createObjectURL(blob);
-            els.downloadLink.href = url;
-            els.downloadLink.download = file.name.replace(/\.(heic|heif)$/i, "") + ".jpg";
-            finishProcess();
-        }
-
-        async function processVideo(file) {
-            if (!ffmpeg.isLoaded()) {
-                els.statusText.innerText = "正在加载引擎 (首次需等待)...";
-                await ffmpeg.load();
-            }
-
-            try { ffmpeg.FS('unlink', 'input_video'); ffmpeg.FS('unlink', 'output.mp4'); } catch(e){}
-
-            const fileName = 'input_video';
-            ffmpeg.FS('writeFile', fileName, await fetchFile(file));
-
-            els.statusText.innerText = "正在处理中 (请勿关闭网页)...";
-
-            let command = [];
-            const outputName = 'output.mp4';
-            let finalOutput = outputName;
-
-            const commonFlags = ['-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
-
-            if (currentMode === 'mp4') {
-                command = ['-i', fileName, '-c:v', 'libx264', '-preset', 'superfast', '-crf', '23', '-c:a', 'aac', ...commonFlags, outputName];
-            } 
-            else if (currentMode === 'compress') {
-                command = ['-i', fileName, '-vf', 'scale=-2:720', '-c:v', 'libx264', '-crf', '30', '-preset', 'superfast', '-c:a', 'aac', '-b:a', '96k', ...commonFlags, outputName];
-            }
-            else if (currentMode === 'audio') {
-                finalOutput = 'output.mp3';
-                command = ['-i', fileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '4', finalOutput];
-            }
-            else if (currentMode === 'trim') {
-                const start = document.getElementById('trim-start').value || 0;
-                const duration = document.getElementById('trim-duration').value;
-                let cmdBuilder = ['-ss', start, '-i', fileName];
-                if (duration) cmdBuilder.push('-t', duration);
-                command = [...cmdBuilder, '-c:v', 'libx264', '-preset', 'superfast', '-c:a', 'aac', ...commonFlags, outputName];
-            }
-
-            await ffmpeg.run(...command);
-
-            const data = ffmpeg.FS('readFile', finalOutput);
-            const url = URL.createObjectURL(new Blob([data.buffer], { type: currentMode === 'audio' ? 'audio/mp3' : 'video/mp4' }));
-            
-            els.downloadLink.href = url;
-            els.downloadLink.download = `fixed_${file.name.split('.')[0]}.${currentMode === 'audio' ? 'mp3' : 'mp4'}`;
-            
-            finishProcess();
-        }
-
-        function finishProcess() {
-            els.processZone.classList.add('hidden');
-            els.resultZone.classList.remove('hidden');
-        }
-    </script>
-</body>
-</html>
