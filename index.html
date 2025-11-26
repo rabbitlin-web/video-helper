@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小白视频助手 | 免费视频修复工具箱</title>
+    <meta name="description" content="专为新手设计的视频工具箱。免费转换MP4，压缩视频发微信，HEIC转JPG。不上传文件，保护隐私。">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="coi-serviceworker.js"></script>
+
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
+
+    <script src="https://unpkg.com/heic2any@0.0.3/dist/heic2any.min.js"></script>
+    
+    <style>
+        body { background-color: #f2f2f2; color: #111; }
+        
+        /* 按钮风格 */
+        .btn-tool { 
+            transition: all 0.2s; 
+            border: 2px solid #000; 
+            background: #fff;
+        }
+        .btn-tool:hover { 
+            transform: translate(-2px, -2px); 
+            box-shadow: 4px 4px 0px #000; 
+        }
+        .btn-tool.active { 
+            background: #000; 
+            color: #fff; 
+            box-shadow: 4px 4px 0px #666; 
+            transform: translate(-2px, -2px);
+        }
+
+        /* 面板风格 */
+        .panel { 
+            border: 2px solid #000; 
+            background: #fff; 
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1); 
+        }
+
+        /* 输入框风格 */
+        .input-box { 
+            border: 2px solid #ccc; 
+            border-radius: 4px; 
+            padding: 8px; 
+            width: 100%; 
+        }
+        .input-box:focus { border-color: #000; outline: none; }
+        
+        /* 加载圈圈动画 */
+        .loader {
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #000; 
+            border-radius: 50%;
+            width: 30px; 
+            height: 30px; 
+            animation: spin 1s linear infinite; 
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white border-b-2 border-black p-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase">VIDEO<span class="text-gray-500">HELPER</span></h1>
+                <p class="text-sm font-bold text-gray-500 mt-1">不懂电脑也能用的视频工具箱</p>
+            </div>
+            <div class="text-xs font-mono bg-gray-100 px-3 py-1 border border-gray-300 rounded">
+                隐私保护：所有文件仅在浏览器本地处理，不上传服务器。
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <aside class="md:col-span-1 space-y-3">
+            <h3 class="font-bold text-gray-400 text-sm uppercase mb-4">选择功能 / TOOLS</h3>
+            
+            <button onclick="switchTab('mp4')" id="btn-mp4" class="btn-tool active w-full py-4 px-4 text-left font-bold flex items-center justify-between">
+                <span>🔄 视频转 MP4</span> <span class="text-xs opacity-50">最通用</span>
+            </button>
+            
+            <button onclick="switchTab('compress')" id="btn-compress" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between">
+                <span>📉 微信视频压缩</span> <span class="text-xs opacity-50">发给老板</span>
+            </button>
+            
+            <button onclick="switchTab('trim')" id="btn-trim" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between">
+                <span>✂️ 视频掐头去尾</span> <span class="text-xs opacity-50">简单剪辑</span>
+            </button>
+
+            <button onclick="switchTab('audio')" id="btn-audio" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between">
+                <span>🎵 提取音频</span> <span class="text-xs opacity-50">转MP3</span>
+            </button>
+
+            <button onclick="switchTab('heic')" id="btn-heic" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between">
+                <span>🖼️ 苹果图片转换</span> <span class="text-xs opacity-50">HEIC转JPG</span>
+            </button>
+        </aside>
+
+        <section class="md:col-span-3">
+            
+            <div id="instruction-panel" class="mb-6 p-4 bg-gray-100 border-l-4 border-black text-sm text-gray-700">
+                </div>
+
+            <div class="panel p-8 min-h-[400px] flex flex-col justify-center items-center text-center relative">
+                
+                <div id="upload-zone" class="w-full">
+                    <label class="block w-full border-2 border-dashed border-gray-300 hover:border-black hover:bg-gray-50 p-12 rounded-lg cursor-pointer transition">
+                        <div class="text-4xl mb-2">📂</div>
+                        <span class="font-bold text-lg">点击选择文件</span>
+                        <p class="text-gray-400 text-sm mt-2" id="file-hint">支持 MOV, AVI, MKV, FLV 等</p>
+                        <input type="file" id="file-input" class="hidden">
+                    </label>
+                </div>
+
+                <div id="options-zone" class="hidden w-full max-w-md mt-6 bg-gray-50 p-4 border border-gray-200 rounded text-left">
+                    <div id="opt-trim" class="hidden grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold">开始时间 (秒)</label>
+                            <input type="number" id="trim-start" value="0" class="input-box">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold">结束时间 (秒)</label>
+                            <input type="number" id="trim-end" placeholder="留空则到结尾" class="input-box">
+                        </div>
+                        <p class="col-span-2 text-xs text-gray-500">提示：如果想从第5秒开始，就在开始时间填 5。</p>
+                    </div>
+                </div>
+
+                <div id="process-zone" class="hidden w-full">
+                    <div class="loader mb-4"></div>
+                    <h3 class="text-xl font-bold" id="status-text">正在初始化...</h3>
+                    <p class="text-gray-500 text-sm mt-2">这可能需要一点时间，请不要关闭网页</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                        <div class="bg-black h-2.5 rounded-full" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <div id="result-zone" class="hidden w-full">
+                    <div class="text-5xl mb-4">✅</div>
+                    <h3 class="text-2xl font-bold mb-2">处理完成！</h3>
+                    <div class="flex flex-col gap-3 justify-center mt-6">
+                        <a id="download-link" href="#" class="bg-black text-white px-8 py-3 font-bold hover:bg-gray-800 transition rounded shadow-lg">
+                            ⬇️ 下载文件
+                        </a>
+                        <button onclick="resetUI()" class="text-gray-500 underline text-sm">处理下一个</button>
+                    </div>
+                </div>
+
+                <div id="error-msg" class="hidden mt-4 bg-red-50 text-red-600 p-3 text-sm font-bold border border-red-200"></div>
+                
+                <button id="start-btn" class="hidden mt-6 bg-black text-white px-10 py-3 font-bold hover:bg-gray-800 w-full max-w-xs mx-auto">
+                    开始处理
+                </button>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center p-8 text-gray-400 text-xs">
+        <p>GitHub Open Source Project | Designed for simplicity.</p>
+    </footer>
+
+    <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        // log: true 方便在控制台看到进度
+        const ffmpeg = createFFmpeg({ log: true });
+        
+        let currentMode = 'mp4'; // 默认模式
+        let selectedFile = null;
+
+        // 获取页面元素
+        const els = {
+            uploadZone: document.getElementById('upload-zone'),
+            processZone: document.getElementById('process-zone'),
+            resultZone: document.getElementById('result-zone'),
+            optionsZone: document.getElementById('options-zone'),
+            optTrim: document.getElementById('opt-trim'),
+            fileInput: document.getElementById('file-input'),
+            startBtn: document.getElementById('start-btn'),
+            statusText: document.getElementById('status-text'),
+            downloadLink: document.getElementById('download-link'),
+            errorMsg: document.getElementById('error-msg'),
+            instruction: document.getElementById('instruction-panel'),
+            fileHint: document.getElementById('file-hint')
+        };
+
+        // 说明书文案配置
+        const instructions = {
+            mp4: `<strong>📢 这个功能做什么？</strong><br>帮你解决“视频打不开”或“格式不支持”的问题。<br>不管你录的是 MOV, MKV 还是其他奇怪格式，统统转成最通用的 MP4。`,
+            compress: `<strong>📢 这个功能做什么？</strong><br>帮你把大视频变小，方便发微信、发邮件。<br>我们会稍微降低一点画质（肉眼几乎看不出），但能大幅减小文件体积。`,
+            trim: `<strong>📢 这个功能做什么？</strong><br>视频开头在调整镜头？结尾忘了关机？<br>在这里输入你想保留的时间段，把多余的废片切掉。`,
+            audio: `<strong>📢 这个功能做什么？</strong><br>只要声音，不要画面。<br>把视频里的讲话、音乐提取出来，生成 MP3 文件。`,
+            heic: `<strong>📢 这个功能做什么？</strong><br>解决苹果手机拍的照片（HEIC格式）在电脑/安卓上打不开的问题。<br>一键转成通用的 JPG 图片。`
+        };
+
+        // 初始化
+        updateInstructions();
+
+        // 切换功能 Tab
+        window.switchTab = (mode) => {
+            currentMode = mode;
+            // 按钮样式切换
+            document.querySelectorAll('.btn-tool').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            resetUI();
+            updateInstructions();
+            
+            // HEIC 模式只接受图片，其他模式接受视频
+            if (mode === 'heic') {
+                els.fileInput.accept = "image/heic, image/heif";
+                els.fileHint.innerText = "请选择 .heic 或 .heif 照片";
+            } else {
+                els.fileInput.accept = "video/*";
+                els.fileHint.innerText = "支持 MOV, AVI, MKV, MP4 等";
+            }
+        };
+
+        function updateInstructions() {
+            els.instruction.innerHTML = instructions[currentMode];
+            if(currentMode === 'trim') {
+                els.optionsZone.classList.remove('hidden');
+                els.optTrim.classList.remove('hidden');
+            } else {
+                els.optionsZone.classList.add('hidden');
+                els.optTrim.classList.add('hidden');
+            }
+        }
+
+        function resetUI() {
+            selectedFile = null;
+            els.fileInput.value = "";
+            els.uploadZone.classList.remove('hidden');
+            els.processZone.classList.add('hidden');
+            els.resultZone.classList.add('hidden');
+            els.startBtn.classList.add('hidden');
+            els.errorMsg.classList.add('hidden');
+        }
+
+        // 文件选择监听
+        els.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            selectedFile = file;
+            els.fileHint.innerHTML = `已选择：<strong class="text-black">${file.name}</strong>`;
+            els.startBtn.classList.remove('hidden');
+        });
+
+        // 点击开始处理
+        els.startBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // 界面切换到加载状态
+            els.uploadZone.classList.add('hidden');
+            els.optionsZone.classList.add('hidden');
+            els.startBtn.classList.add('hidden');
+            els.processZone.classList.remove('hidden');
+            els.errorMsg.classList.add('hidden');
+
+            try {
+                if (currentMode === 'heic') {
+                    await processHEIC(selectedFile);
+                } else {
+                    await processVideo(selectedFile);
+                }
+            } catch (err) {
+                console.error(err);
+                els.processZone.classList.add('hidden');
+                els.uploadZone.classList.remove('hidden');
+                els.errorMsg.innerHTML = "出错了：<br>" + err.message + "<br><span class='text-xs font-normal'>如果你看到 SharedArrayBuffer 错误，请确保已正确配置 GitHub Pages 或 HTTPS 环境。</span>";
+                els.errorMsg.classList.remove('hidden');
+            }
+        });
+
+        // 图片处理逻辑
+        async function processHEIC(file) {
+            els.statusText.innerText = "正在转换图片...";
+            const blob = await heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.8
+            });
+            const url = URL.createObjectURL(blob);
+            els.downloadLink.href = url;
+            els.downloadLink.download = file.name.replace(/\.(heic|heif)$/i, "") + ".jpg";
+            finishProcess();
+        }
+
+        // 视频处理逻辑
+        async function processVideo(file) {
+            if (!ffmpeg.isLoaded()) {
+                els.statusText.innerText = "正在加载引擎 (首次需几十秒)...";
+                await ffmpeg.load();
+            }
+
+            const fileName = 'input_video';
+            ffmpeg.FS('writeFile', fileName, await fetchFile(file));
+
+            els.statusText.innerText = "正在处理中，请耐心等待...";
+
+            let command = [];
+            const outputName = 'output.mp4';
+            let finalOutput = outputName;
+
+            // 根据模式生成 FFmpeg 命令
+            if (currentMode === 'mp4') {
+                command = ['-i', fileName, '-c:v', 'libx264', '-preset', 'ultrafast', '-c:a', 'aac', outputName];
+            } 
+            else if (currentMode === 'compress') {
+                command = ['-i', fileName, '-vf', 'scale=-2:720', '-c:v', 'libx264', '-crf', '28', '-preset', 'ultrafast', '-c:a', 'aac', outputName];
+            }
+            else if (currentMode === 'audio') {
+                finalOutput = 'output.mp3';
+                command = ['-i', fileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', finalOutput];
+            }
+            else if (currentMode === 'trim') {
+                const start = document.getElementById('trim-start').value || 0;
+                const end = document.getElementById('trim-end').value;
+                command = ['-i', fileName, '-ss', start];
+                if (end) command.push('-to', end);
+                command.push('-c', 'copy', outputName);
+            }
+
+            await ffmpeg.run(...command);
+
+            const data = ffmpeg.FS('readFile', finalOutput);
+            const url = URL.createObjectURL(new Blob([data.buffer], { type: currentMode === 'audio' ? 'audio/mp3' : 'video/mp4' }));
+            
+            els.downloadLink.href = url;
+            els.downloadLink.download = `fixed_${file.name.split('.')[0]}.${currentMode === 'audio' ? 'mp3' : 'mp4'}`;
+            
+            finishProcess();
+        }
+
+        function finishProcess() {
+            els.processZone.classList.add('hidden');
+            els.resultZone.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
