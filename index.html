@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小白视频助手 | 免费视频修复工具箱</title>
-    <meta name="description" content="专为新手设计的视频工具箱。免费转换MP4，压缩视频发微信，HEIC转JPG。不上传文件，保护隐私。">
+    <title>小白视频助手 | VideoHelper - By rabbitlin</title>
+    <meta name="description" content="专为新手设计的视频工具箱。免费转换MP4，压缩视频发微信。Created by rabbitlin.">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -16,12 +16,20 @@
     
     <style>
         body { background-color: #f2f2f2; color: #111; }
+        
+        /* 按钮通用风格 */
         .btn-tool { transition: all 0.2s; border: 2px solid #000; background: #fff; }
         .btn-tool:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #000; }
         .btn-tool.active { background: #000; color: #fff; box-shadow: 4px 4px 0px #666; transform: translate(-2px, -2px); }
+        
+        /* Github 按钮风格 */
+        .btn-github { background: #000; color: #fff; border: 2px solid #000; }
+        .btn-github:hover { background: #333; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px rgba(0,0,0,0.2); }
+
         .panel { border: 2px solid #000; background: #fff; box-shadow: 8px 8px 0px rgba(0,0,0,0.1); }
         .input-box { border: 2px solid #ccc; border-radius: 4px; padding: 8px; width: 100%; }
         .input-box:focus { border-color: #000; outline: none; }
+        
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -32,17 +40,17 @@
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl font-black tracking-tighter uppercase">VIDEO<span class="text-gray-500">HELPER</span></h1>
-                <p class="text-sm font-bold text-gray-500 mt-1">不懂电脑也能用的视频工具箱 <span class="text-xs bg-black text-white px-1 rounded">V2.0 修复版</span></p>
+                <p class="text-sm font-bold text-gray-500 mt-1">不懂电脑也能用的视频工具箱 <span class="text-xs bg-black text-white px-1 rounded">V2.0</span></p>
             </div>
             <div class="text-xs font-mono bg-gray-100 px-3 py-1 border border-gray-300 rounded">
-                隐私保护：本地处理，不上传服务器
+                隐私保护：本地处理，不上传服务器 / Private & Local
             </div>
         </div>
     </header>
 
     <main class="flex-grow max-w-6xl mx-auto w-full p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         <aside class="md:col-span-1 space-y-3">
-            <h3 class="font-bold text-gray-400 text-sm uppercase mb-4">选择功能 / TOOLS</h3>
+            <h3 class="font-bold text-gray-400 text-sm uppercase mb-4">功能菜单 / TOOLS</h3>
             <button onclick="switchTab('mp4')" id="btn-mp4" class="btn-tool active w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>🔄 视频转 MP4</span> <span class="text-xs opacity-50">修复打不开</span></button>
             <button onclick="switchTab('compress')" id="btn-compress" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>📉 微信视频压缩</span> <span class="text-xs opacity-50">强力瘦身</span></button>
             <button onclick="switchTab('trim')" id="btn-trim" class="btn-tool w-full py-4 px-4 text-left font-bold flex items-center justify-between"><span>✂️ 视频掐头去尾</span> <span class="text-xs opacity-50">精确剪辑</span></button>
@@ -71,9 +79,8 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold">持续时间 (秒)</label>
-                            <input type="number" id="trim-duration" class="input-box" placeholder="例如: 10 (留空则到最后)">
+                            <input type="number" id="trim-duration" class="input-box" placeholder="例如: 10">
                         </div>
-                        <p class="col-span-2 text-xs text-gray-500">注意：这里填的是“切出来多长”，不是“结束时间”。<br>例如：从第 5 秒开始，要 10 秒的内容。</p>
                     </div>
                 </div>
 
@@ -99,7 +106,39 @@
         </section>
     </main>
 
-    <footer class="text-center p-8 text-gray-400 text-xs"><p>Designed for non-techies.</p></footer>
+    <footer class="bg-white border-t-2 border-black mt-12">
+        <div class="max-w-6xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            
+            <div class="text-center md:text-left space-y-4">
+                <div>
+                    <h3 class="text-xl font-black uppercase tracking-wider">About Creator</h3>
+                    <p class="text-lg font-bold mt-2">创作者：<span class="bg-black text-white px-1">rabbitlin</span></p>
+                    <p class="text-gray-500 font-mono text-sm">微信号 (WeChat): Aa272123071</p>
+                </div>
+                
+                <a href="https://github.com/rabbitlin-web/video-helper" target="_blank" class="btn-github inline-flex items-center px-6 py-3 font-bold rounded-lg transition mt-4">
+                    <span class="mr-2 text-xl">⭐</span> 
+                    <span>Star on GitHub / 去点赞</span>
+                </a>
+                <p class="text-xs text-gray-400 mt-2">源代码开源，欢迎 Fork 和 学习。</p>
+            </div>
+
+            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
+                <p class="font-bold text-gray-800 mb-2">
+                    ☕️ 喜欢这个工具吗？<br>
+                    <span class="text-sm font-normal text-gray-500">If you like it, buy me a coffee!</span>
+                </p>
+                <p class="text-sm text-pink-500 font-bold mb-4">
+                    "如果觉得好用，请我喝杯咖啡提提神吧！"
+                </p>
+                
+                <img src="pay.jpg" alt="WeChat Pay" class="w-40 h-40 object-cover mx-auto rounded-lg border border-gray-200 shadow-sm">
+                
+                <p class="text-xs text-gray-400 mt-2">WeChat Pay / 微信支付</p>
+            </div>
+
+        </div>
+    </footer>
 
     <script>
         const { createFFmpeg, fetchFile } = FFmpeg;
@@ -215,7 +254,6 @@
                 await ffmpeg.load();
             }
 
-            // 清理旧文件，防止内存溢出
             try { ffmpeg.FS('unlink', 'input_video'); ffmpeg.FS('unlink', 'output.mp4'); } catch(e){}
 
             const fileName = 'input_video';
@@ -227,16 +265,12 @@
             const outputName = 'output.mp4';
             let finalOutput = outputName;
 
-            // 核心兼容性参数 (解决打不开问题)
             const commonFlags = ['-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
 
             if (currentMode === 'mp4') {
-                // 修复模式：使用兼容性极好的参数，CRF 23 保证画质
                 command = ['-i', fileName, '-c:v', 'libx264', '-preset', 'superfast', '-crf', '23', '-c:a', 'aac', ...commonFlags, outputName];
             } 
             else if (currentMode === 'compress') {
-                // 压缩模式：CRF 30 (强力压缩), 强制Scale 720p, 音频降低
-                // 解决越压越大的问题
                 command = ['-i', fileName, '-vf', 'scale=-2:720', '-c:v', 'libx264', '-crf', '30', '-preset', 'superfast', '-c:a', 'aac', '-b:a', '96k', ...commonFlags, outputName];
             }
             else if (currentMode === 'audio') {
@@ -244,18 +278,13 @@
                 command = ['-i', fileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '4', finalOutput];
             }
             else if (currentMode === 'trim') {
-                // 剪辑模式：使用重新编码 (-c:v libx264) 而不是 copy，解决黑屏问题
                 const start = document.getElementById('trim-start').value || 0;
                 const duration = document.getElementById('trim-duration').value;
-                
-                // 注意：这里为了精确，把 -ss 放在 -i 之前
                 let cmdBuilder = ['-ss', start, '-i', fileName];
                 if (duration) cmdBuilder.push('-t', duration);
-                
                 command = [...cmdBuilder, '-c:v', 'libx264', '-preset', 'superfast', '-c:a', 'aac', ...commonFlags, outputName];
             }
 
-            console.log("执行命令:", command);
             await ffmpeg.run(...command);
 
             const data = ffmpeg.FS('readFile', finalOutput);
