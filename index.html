@@ -167,3 +167,329 @@
                 <div id="options-zone" class="hidden w-full max-w-md mt-8 bg-stone-50 p-6 rounded-xl border border-stone-200 text-left animate-fade-in">
                     <div id="opt-trim" class="hidden grid grid-cols-2 gap-5">
                         <div>
+                            <label class="text-xs font-bold text-stone-500 mb-1 block" data-i18n="trim_start">开始时间 (秒)</label>
+                            <input type="number" id="trim-start" value="0" class="w-full p-2 border border-stone-300 rounded-lg focus:outline-none focus:border-[#709085]" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-stone-500 mb-1 block" data-i18n="trim_duration">持续时间 (秒)</label>
+                            <input type="number" id="trim-duration" class="w-full p-2 border border-stone-300 rounded-lg focus:outline-none focus:border-[#709085]" placeholder="10">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="process-zone" class="hidden w-full max-w-md">
+                    <div class="flex justify-center mb-6"><div class="loader scale-150"></div></div>
+                    <h3 class="text-xl font-bold text-stone-700" id="status-text">Processing...</h3>
+                    <p class="text-stone-400 text-sm mt-2" data-i18n="wait_hint">Browser is working hard, please wait...</p>
+                </div>
+
+                <div id="result-zone" class="hidden w-full animate-fade-in">
+                    <div class="text-6xl mb-4 text-[#709085]">✨</div>
+                    <h3 class="text-2xl font-bold text-stone-800 mb-2" data-i18n="done_title">搞定！</h3>
+                    <p class="text-stone-500 mb-8" data-i18n="done_desc">Your file is ready.</p>
+                    
+                    <div class="flex flex-col gap-4 justify-center items-center">
+                        <a id="download-link" href="#" class="btn-primary px-10 py-3 rounded-full font-bold shadow-lg flex items-center gap-2">
+                            <span>⬇️</span> <span data-i18n="download_btn">下载文件</span>
+                        </a>
+                        <button onclick="location.reload()" class="text-stone-400 text-sm hover:text-stone-600 underline" data-i18n="next_btn">处理下一个</button>
+                    </div>
+                </div>
+
+                <div id="error-msg" class="hidden mt-6 bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 max-w-lg"></div>
+                
+                <button id="start-btn" class="hidden mt-8 btn-primary px-12 py-3 rounded-full font-bold w-full max-w-xs mx-auto shadow-md" data-i18n="start_btn">
+                    开始处理
+                </button>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-stone-200 mt-12 py-12">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            
+            <div class="text-center md:text-left">
+                <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Creator / 创作者</h3>
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                     <div class="w-12 h-12 bg-stone-200 rounded-full flex items-center justify-center text-xl">🐰</div>
+                     <div>
+                        <p class="text-xl font-bold text-stone-800">rabbitlin</p>
+                        <p class="text-sm text-stone-500 font-mono">WeChat: Aa272123071</p>
+                     </div>
+                </div>
+                
+                <a href="https://github.com/rabbitlin-web/video-helper" target="_blank" class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-stone-800 text-white rounded-lg hover:bg-black transition text-sm font-medium">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    <span data-i18n="github_btn">Star on GitHub</span>
+                </a>
+            </div>
+
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl blur opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+                <div class="relative bg-white rounded-xl p-6 border border-stone-100 shadow-sm flex items-center gap-6">
+                    <img src="pay.jpg" alt="Donate" class="w-24 h-24 rounded-lg object-cover shadow-inner border border-stone-100">
+                    <div>
+                        <p class="font-bold text-stone-800 text-lg mb-1" data-i18n="coffee_title">☕️ 买杯咖啡？</p>
+                        <p class="text-sm text-stone-500 mb-2 leading-relaxed" data-i18n="coffee_desc">如果这个工具帮到了你，<br>欢迎支持一下服务器(并没有)的电费。</p>
+                        <p class="text-xs text-pink-500 font-medium">WeChat Pay / 微信支付</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. 语言包与国际化逻辑 (i18n) ---
+        const translations = {
+            cn: {
+                menu_title: "功能菜单 / TOOLS",
+                privacy_tag: "🔒 本地处理，不上传 / Private & Local",
+                btn_mp4: "视频转 MP4", desc_mp4: "修复打不开的问题",
+                btn_compress: "微信视频压缩", desc_compress: "强力瘦身发微信",
+                btn_trim: "视频掐头去尾", desc_trim: "简单精确剪辑",
+                btn_audio: "提取音频", desc_audio: "视频转 MP3",
+                btn_heic: "苹果图片转换", desc_heic: "HEIC 转 JPG",
+                upload_title: "点击选择文件",
+                file_hint_video: "支持 MOV, MKV, MP4, AVI 等",
+                file_hint_heic: "请选择 .heic / .heif 图片",
+                start_btn: "开始处理",
+                wait_hint: "浏览器正在全力计算中，请耐心等待...",
+                done_title: "搞定啦！",
+                done_desc: "文件处理完成，请点击下载。",
+                download_btn: "下载文件",
+                next_btn: "处理下一个",
+                github_btn: "去 GitHub 点赞",
+                coffee_title: "☕️ 喜欢这个工具？",
+                coffee_desc: "如果觉得好用，<br>请我喝杯咖啡提提神吧！",
+                trim_start: "开始时间 (秒)", trim_duration: "持续时间 (秒)",
+                
+                // 说明书文案
+                instr_mp4: "💡 <strong>功能说明：</strong> 专门解决视频打不开、黑屏或格式不支持的问题。不管原视频是什么古怪格式，统统转成最通用的 MP4。",
+                instr_compress: "💡 <strong>功能说明：</strong> 微信限制文件大小？用这个。它会稍微降低一点画质（肉眼几乎看不出），但能把体积压得很小。",
+                instr_trim: "💡 <strong>功能说明：</strong> 视频前面 5 秒在调整镜头？这里输入开始时间和持续时长，精准切掉废片。",
+                instr_audio: "💡 <strong>功能说明：</strong> 只要声音，不要画面。把视频里的讲话或音乐提取出来，生成 MP3。",
+                instr_heic: "💡 <strong>功能说明：</strong> 苹果手机拍的照片在电脑上打不开？用这个一键转成 JPG。"
+            },
+            en: {
+                menu_title: "TOOLS MENU",
+                privacy_tag: "🔒 100% Local Processing",
+                btn_mp4: "Convert to MP4", desc_mp4: "Fix playback issues",
+                btn_compress: "Compress Video", desc_compress: "For WeChat/WhatsApp",
+                btn_trim: "Trim Video", desc_trim: "Cut start/end",
+                btn_audio: "Extract Audio", desc_audio: "Get MP3 file",
+                btn_heic: "HEIC to JPG", desc_heic: "Fix iPhone Photos",
+                upload_title: "Click to Upload",
+                file_hint_video: "Supports MOV, MKV, MP4, AVI...",
+                file_hint_heic: "Select .heic / .heif image",
+                start_btn: "Start Processing",
+                wait_hint: "Browser is processing locally, please wait...",
+                done_title: "All Done!",
+                done_desc: "Your file is ready for download.",
+                download_btn: "Download File",
+                next_btn: "Process Another",
+                github_btn: "Star on GitHub",
+                coffee_title: "☕️ Buy me a coffee?",
+                coffee_desc: "If this tool saved your time,<br>feel free to support me!",
+                trim_start: "Start Time (sec)", trim_duration: "Duration (sec)",
+
+                instr_mp4: "💡 <strong>Info:</strong> Fixes videos that won't open or play nicely. Converts any format to standard MP4.",
+                instr_compress: "💡 <strong>Info:</strong> File too big for email or WeChat? This reduces file size significantly with minimal quality loss.",
+                instr_trim: "💡 <strong>Info:</strong> Cut out the boring parts. Enter start time and duration to trim your video.",
+                instr_audio: "💡 <strong>Info:</strong> Want just the music or speech? Extracts audio track to MP3.",
+                instr_heic: "💡 <strong>Info:</strong> Windows can't open iPhone photos? Convert HEIC to standard JPG instantly."
+            }
+        };
+
+        let currentLang = 'cn'; // 默认中文
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'cn' ? 'en' : 'cn';
+            document.getElementById('lang-display').innerText = currentLang === 'cn' ? 'EN' : '中';
+            updateUIText();
+            updateInstructions(); // 刷新说明书
+        }
+
+        function updateUIText() {
+            const data = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (data[key]) el.innerHTML = data[key];
+            });
+            // 刷新文件提示
+            if (currentMode === 'heic') {
+                els.fileHint.innerText = data.file_hint_heic;
+            } else {
+                els.fileHint.innerText = data.file_hint_video;
+            }
+        }
+
+        // --- 2. 视频处理核心逻辑 (FFmpeg) ---
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = createFFmpeg({ log: true });
+        
+        let currentMode = 'mp4';
+        let selectedFile = null;
+
+        const els = {
+            uploadZone: document.getElementById('upload-zone'),
+            processZone: document.getElementById('process-zone'),
+            resultZone: document.getElementById('result-zone'),
+            optionsZone: document.getElementById('options-zone'),
+            optTrim: document.getElementById('opt-trim'),
+            fileInput: document.getElementById('file-input'),
+            startBtn: document.getElementById('start-btn'),
+            statusText: document.getElementById('status-text'),
+            downloadLink: document.getElementById('download-link'),
+            errorMsg: document.getElementById('error-msg'),
+            instruction: document.getElementById('instruction-text'),
+            fileHint: document.getElementById('file-hint')
+        };
+
+        // 初始化
+        updateUIText();
+        updateInstructions();
+
+        window.switchTab = (mode) => {
+            currentMode = mode;
+            // 样式切换
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            resetUI();
+            updateInstructions();
+            updateUIText(); // 确保提示文案正确
+            
+            if (mode === 'heic') {
+                els.fileInput.accept = "image/heic, image/heif";
+            } else {
+                els.fileInput.accept = "video/*";
+            }
+        };
+
+        function updateInstructions() {
+            const t = translations[currentLang];
+            const map = {
+                mp4: t.instr_mp4,
+                compress: t.instr_compress,
+                trim: t.instr_trim,
+                audio: t.instr_audio,
+                heic: t.instr_heic
+            };
+            els.instruction.innerHTML = map[currentMode];
+
+            // 显示剪辑选项
+            if(currentMode === 'trim') {
+                els.optionsZone.classList.remove('hidden');
+                els.optTrim.classList.remove('hidden');
+            } else {
+                els.optionsZone.classList.add('hidden');
+                els.optTrim.classList.add('hidden');
+            }
+        }
+
+        function resetUI() {
+            selectedFile = null;
+            els.fileInput.value = "";
+            els.uploadZone.classList.remove('hidden');
+            els.processZone.classList.add('hidden');
+            els.resultZone.classList.add('hidden');
+            els.startBtn.classList.add('hidden');
+            els.errorMsg.classList.add('hidden');
+        }
+
+        els.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            selectedFile = file;
+            els.fileHint.innerHTML = `Selected: <strong class="text-stone-800">${file.name}</strong>`;
+            els.startBtn.classList.remove('hidden');
+        });
+
+        els.startBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            els.uploadZone.classList.add('hidden');
+            els.optionsZone.classList.add('hidden');
+            els.startBtn.classList.add('hidden');
+            els.processZone.classList.remove('hidden');
+            els.errorMsg.classList.add('hidden');
+
+            try {
+                if (currentMode === 'heic') {
+                    await processHEIC(selectedFile);
+                } else {
+                    await processVideo(selectedFile);
+                }
+            } catch (err) {
+                console.error(err);
+                els.processZone.classList.add('hidden');
+                els.uploadZone.classList.remove('hidden');
+                els.errorMsg.innerHTML = "Error: " + err.message + "<br><span class='text-xs text-stone-400'>Check SharedArrayBuffer / HTTPS settings.</span>";
+                els.errorMsg.classList.remove('hidden');
+            }
+        });
+
+        async function processHEIC(file) {
+            els.statusText.innerText = currentLang === 'cn' ? "正在转换图片..." : "Converting Image...";
+            const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
+            const url = URL.createObjectURL(blob);
+            els.downloadLink.href = url;
+            els.downloadLink.download = file.name.replace(/\.(heic|heif)$/i, "") + ".jpg";
+            finishProcess();
+        }
+
+        async function processVideo(file) {
+            if (!ffmpeg.isLoaded()) {
+                els.statusText.innerText = currentLang === 'cn' ? "正在加载引擎..." : "Loading Engine...";
+                await ffmpeg.load();
+            }
+
+            try { ffmpeg.FS('unlink', 'input_video'); ffmpeg.FS('unlink', 'output.mp4'); } catch(e){}
+
+            const fileName = 'input_video';
+            ffmpeg.FS('writeFile', fileName, await fetchFile(file));
+
+            els.statusText.innerText = currentLang === 'cn' ? "正在处理中..." : "Processing...";
+
+            let command = [];
+            const outputName = 'output.mp4';
+            let finalOutput = outputName;
+            const commonFlags = ['-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
+
+            if (currentMode === 'mp4') {
+                command = ['-i', fileName, '-c:v', 'libx264', '-preset', 'superfast', '-crf', '23', '-c:a', 'aac', ...commonFlags, outputName];
+            } 
+            else if (currentMode === 'compress') {
+                command = ['-i', fileName, '-vf', 'scale=-2:720', '-c:v', 'libx264', '-crf', '30', '-preset', 'superfast', '-c:a', 'aac', '-b:a', '96k', ...commonFlags, outputName];
+            }
+            else if (currentMode === 'audio') {
+                finalOutput = 'output.mp3';
+                command = ['-i', fileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '4', finalOutput];
+            }
+            else if (currentMode === 'trim') {
+                const start = document.getElementById('trim-start').value || 0;
+                const duration = document.getElementById('trim-duration').value;
+                let cmdBuilder = ['-ss', start, '-i', fileName];
+                if (duration) cmdBuilder.push('-t', duration);
+                command = [...cmdBuilder, '-c:v', 'libx264', '-preset', 'superfast', '-c:a', 'aac', ...commonFlags, outputName];
+            }
+
+            await ffmpeg.run(...command);
+
+            const data = ffmpeg.FS('readFile', finalOutput);
+            const url = URL.createObjectURL(new Blob([data.buffer], { type: currentMode === 'audio' ? 'audio/mp3' : 'video/mp4' }));
+            
+            els.downloadLink.href = url;
+            els.downloadLink.download = `fixed_${file.name.split('.')[0]}.${currentMode === 'audio' ? 'mp3' : 'mp4'}`;
+            
+            finishProcess();
+        }
+
+        function finishProcess() {
+            els.processZone.classList.add('hidden');
+            els.resultZone.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
